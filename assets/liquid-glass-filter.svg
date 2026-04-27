@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Liquid Glass — SVG filter pack
+  ────────────────────────────────────────────────────────────────
+  Place this once in your HTML root (anywhere — it's invisible).
+  Reference the filter from CSS via:
+      backdrop-filter: url(#liquid-glass) blur(8px) saturate(160%);
+
+  Browser support: Chromium-based browsers (Chrome, Edge, Brave) only.
+  Safari and Firefox auto-fall back to the plain blur+saturate when
+  url() in backdrop-filter is unsupported.
+
+  Two filters are provided:
+    #liquid-glass        — refractive lensing, used on backdrop-filter
+    #liquid-glass-edge   — specular rim highlight, used as a regular filter
+                            on a wrapper element with mix-blend-mode
+
+  Tunables:
+    feTurbulence baseFrequency  → ripple size  (0.005 = wide, 0.02 = tight)
+    feDisplacementMap scale     → refraction strength (30 = soft, 80 = strong)
+    feColorMatrix saturate      → chromatic intensity (1.0 = none, 1.6 = vivid)
+-->
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="0" height="0"
+     style="position:absolute;overflow:hidden;width:0;height:0"
+     aria-hidden="true">
+  <defs>
+
+    <!-- ──────────────────────────────────────────────────────────
+         #liquid-glass — refractive lensing
+         Apply via:  backdrop-filter: url(#liquid-glass) blur(8px) saturate(160%);
+         ────────────────────────────────────────────────────────── -->
+    <filter id="liquid-glass" x="0%" y="0%" width="100%" height="100%">
+      <!-- 1. Generate smooth fractal noise as displacement vectors -->
+      <feTurbulence
+        type="fractalNoise"
+        baseFrequency="0.012 0.012"
+        numOctaves="2"
+        seed="3"
+        result="noise"/>
+
+      <!-- 2. Use noise to displace the source pixels (lensing) -->
+      <feDisplacementMap
+        in="SourceGraphic"
+        in2="noise"
+        scale="60"
+        xChannelSelector="R"
+        yChannelSelector="G"
+        result="displaced"/>
+
+      <!-- 3. Boost saturation for a hint of chromatic aberration -->
+      <feColorMatrix
+        in="displaced"
+        type="saturate"
+        values="1.4"/>
+    </filter>
+
+    <!-- ──────────────────────────────────────────────────────────
+         #liquid-glass-strong — more pronounced refraction
+         Use for hero elements only (single per page).
+         ────────────────────────────────────────────────────────── -->
+    <filter id="liquid-glass-strong" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence
+        type="fractalNoise"
+        baseFrequency="0.008 0.008"
+        numOctaves="3"
+        seed="7"
+        result="noise"/>
+      <feDisplacementMap
+        in="SourceGraphic"
+        in2="noise"
+        scale="90"
+        xChannelSelector="R"
+        yChannelSelector="G"
+        result="displaced"/>
+      <feColorMatrix
+        in="displaced"
+        type="saturate"
+        values="1.6"/>
+    </filter>
+
+    <!-- ──────────────────────────────────────────────────────────
+         #liquid-glass-subtle — barely-there refraction
+         Use for dense UIs where strong distortion would harm legibility.
+         ────────────────────────────────────────────────────────── -->
+    <filter id="liquid-glass-subtle" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence
+        type="fractalNoise"
+        baseFrequency="0.018 0.018"
+        numOctaves="1"
+        seed="11"
+        result="noise"/>
+      <feDisplacementMap
+        in="SourceGraphic"
+        in2="noise"
+        scale="20"
+        xChannelSelector="R"
+        yChannelSelector="G"
+        result="displaced"/>
+      <feColorMatrix
+        in="displaced"
+        type="saturate"
+        values="1.15"/>
+    </filter>
+
+    <!-- ──────────────────────────────────────────────────────────
+         #liquid-glass-edge — specular rim highlight
+         Apply via:  filter: url(#liquid-glass-edge);  on a thin
+         pseudo-element (::after) absolutely positioned over the glass.
+         Pair with mix-blend-mode: screen for the right glow.
+         ────────────────────────────────────────────────────────── -->
+    <filter id="liquid-glass-edge" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="6" result="blurred"/>
+      <feSpecularLighting
+        in="blurred"
+        surfaceScale="4"
+        specularConstant="1.6"
+        specularExponent="32"
+        lighting-color="white"
+        result="specular">
+        <fePointLight x="50" y="-30" z="200"/>
+      </feSpecularLighting>
+      <feComposite
+        in="specular"
+        in2="SourceGraphic"
+        operator="in"
+        result="rim"/>
+      <feMerge>
+        <feMergeNode in="SourceGraphic"/>
+        <feMergeNode in="rim"/>
+      </feMerge>
+    </filter>
+
+  </defs>
+</svg>

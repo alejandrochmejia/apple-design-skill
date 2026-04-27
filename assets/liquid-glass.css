@@ -1,0 +1,555 @@
+/* ──────────────────────────────────────────────────────────────────
+ * Liquid Glass — drop-in CSS module
+ *
+ * Recreates Apple's iOS 26 / macOS Tahoe 26 Liquid Glass look on the web.
+ * Two layers: (1) a frosted glass that works in every modern browser, and
+ * (2) an optional refractive variant that uses an SVG filter (Chromium only;
+ * auto-falls back to plain blur on Safari/Firefox).
+ *
+ * Pair with `liquid-glass-filter.svg` (place once at the root of the page,
+ * inline or as a separate asset).
+ *
+ * Includes: light + dark mode, prefers-reduced-transparency,
+ * prefers-reduced-motion, prefers-contrast, and progressive-enhancement
+ * fallbacks for older browsers.
+ *
+ * Source synthesis: Apple HIG (foundations + Liquid Glass), WWDC25 #356,
+ * Josh Comeau / kube.io / nikdelvin / LogRocket implementations.
+ *────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* ── Glass tunables ── */
+  --glass-bg-light: rgb(255 255 255 / 0.55);
+  --glass-bg-dark:  rgb(28 28 30 / 0.55);
+  --glass-bg-clear-light: rgb(255 255 255 / 0.16);
+  --glass-bg-clear-dark:  rgb(28 28 30 / 0.16);
+  --glass-border-light: rgb(255 255 255 / 0.6);
+  --glass-border-dark:  rgb(255 255 255 / 0.12);
+  --glass-blur: 24px;
+  --glass-saturate: 180%;
+  --glass-radius: 22px;
+  --glass-radius-capsule: 9999px;
+
+  /* ── Apple system palette (light mode) ── */
+  --sys-red:    #FF3B30;
+  --sys-orange: #FF9500;
+  --sys-yellow: #FFCC00;
+  --sys-green:  #34C759;
+  --sys-mint:   #00C7BE;
+  --sys-teal:   #30B0C7;
+  --sys-cyan:   #32ADE6;
+  --sys-blue:   #007AFF;
+  --sys-indigo: #5856D6;
+  --sys-purple: #AF52DE;
+  --sys-pink:   #FF2D55;
+  --sys-brown:  #A2845E;
+
+  /* ── Semantic labels ── */
+  --label-primary:    rgb(0 0 0 / 0.92);
+  --label-secondary:  rgb(60 60 67 / 0.60);
+  --label-tertiary:   rgb(60 60 67 / 0.30);
+  --label-quaternary: rgb(60 60 67 / 0.18);
+
+  --fill-primary:    rgb(120 120 128 / 0.20);
+  --fill-secondary:  rgb(120 120 128 / 0.16);
+  --fill-tertiary:   rgb(118 118 128 / 0.12);
+  --fill-quaternary: rgb(116 116 128 / 0.08);
+
+  --background-primary:   rgb(255 255 255);
+  --background-secondary: rgb(242 242 247);
+  --background-tertiary:  rgb(255 255 255);
+
+  --grouped-bg-primary:   rgb(242 242 247);
+  --grouped-bg-secondary: rgb(255 255 255);
+  --grouped-bg-tertiary:  rgb(242 242 247);
+
+  --separator: rgb(60 60 67 / 0.36);
+  --opaque-separator: rgb(198 198 200);
+
+  /* ── Type ── */
+  --font-sf-text: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
+  --font-sf-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", system-ui, sans-serif;
+  --font-sf-mono: ui-monospace, "SF Mono", Menlo, Monaco, "Cascadia Mono", Consolas, monospace;
+
+  /* ── Easing ── */
+  --ease-standard:  cubic-bezier(0.4, 0.0, 0.2, 1);
+  --ease-emphasized: cubic-bezier(0.2, 0.0, 0, 1);
+  --ease-spring:    cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-decelerate: cubic-bezier(0.0, 0.0, 0.2, 1);
+  --ease-accelerate: cubic-bezier(0.4, 0.0, 1, 1);
+
+  /* ── Spacing (8pt grid) ── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+}
+
+/* ── Dark mode overrides ── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --label-primary:    rgb(255 255 255 / 0.92);
+    --label-secondary:  rgb(235 235 245 / 0.60);
+    --label-tertiary:   rgb(235 235 245 / 0.30);
+    --label-quaternary: rgb(235 235 245 / 0.18);
+
+    --fill-primary:    rgb(120 120 128 / 0.36);
+    --fill-secondary:  rgb(120 120 128 / 0.32);
+    --fill-tertiary:   rgb(118 118 128 / 0.24);
+    --fill-quaternary: rgb(118 118 128 / 0.18);
+
+    --background-primary:   rgb(0 0 0);
+    --background-secondary: rgb(28 28 30);
+    --background-tertiary:  rgb(44 44 46);
+
+    --grouped-bg-primary:   rgb(0 0 0);
+    --grouped-bg-secondary: rgb(28 28 30);
+    --grouped-bg-tertiary:  rgb(44 44 46);
+
+    --separator: rgb(84 84 88 / 0.65);
+    --opaque-separator: rgb(56 56 58);
+
+    /* Apple system palette (dark mode) */
+    --sys-red:    #FF453A;
+    --sys-orange: #FF9F0A;
+    --sys-yellow: #FFD60A;
+    --sys-green:  #30D158;
+    --sys-mint:   #63E6E2;
+    --sys-teal:   #40CBE0;
+    --sys-cyan:   #64D2FF;
+    --sys-blue:   #0A84FF;
+    --sys-indigo: #5E5CE6;
+    --sys-purple: #BF5AF2;
+    --sys-pink:   #FF375F;
+    --sys-brown:  #AC8E68;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+ * Base glass class
+ *────────────────────────────────────────────────────────────────── */
+.glass {
+  background: var(--glass-bg-light);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+
+  border: 1px solid var(--glass-border-light);
+  border-radius: var(--glass-radius);
+  box-shadow:
+    0 1px 0 0 rgb(255 255 255 / 0.5) inset,
+    0 8px 24px -4px rgb(0 0 0 / 0.18),
+    0 2px 6px -2px rgb(0 0 0 / 0.10);
+
+  color: var(--label-primary);
+  transition:
+    box-shadow 240ms var(--ease-spring),
+    transform  240ms var(--ease-spring);
+}
+
+@media (prefers-color-scheme: dark) {
+  .glass {
+    background: var(--glass-bg-dark);
+    border-color: var(--glass-border-dark);
+    box-shadow:
+      0 1px 0 0 rgb(255 255 255 / 0.08) inset,
+      0 8px 24px -4px rgb(0 0 0 / 0.40),
+      0 2px 6px -2px rgb(0 0 0 / 0.25);
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+ * Variants
+ *────────────────────────────────────────────────────────────────── */
+
+/* Default — equivalent to Apple's `Glass.regular`. */
+.glass--regular { /* base styles already apply */ }
+
+/* `Glass.clear` — only over media-rich content with bold foreground. */
+.glass--clear {
+  background: var(--glass-bg-clear-light);
+  backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
+}
+@media (prefers-color-scheme: dark) {
+  .glass--clear { background: var(--glass-bg-clear-dark); }
+}
+
+/* `.glassProminent` — primary tinted action. */
+.glass--prominent {
+  background: var(--sys-blue);
+  color: white;
+  border-color: rgb(255 255 255 / 0.35);
+  /* No backdrop-filter — opaque tinted button. */
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Refractive — Chromium only. Auto-fallback on Safari/Firefox. */
+.glass--refractive {
+  backdrop-filter: url(#liquid-glass) blur(8px) saturate(160%);
+  -webkit-backdrop-filter: url(#liquid-glass) blur(8px) saturate(160%);
+}
+
+/* ──────────────────────────────────────────────────────────────────
+ * Shapes
+ *────────────────────────────────────────────────────────────────── */
+.glass--capsule { border-radius: var(--glass-radius-capsule); }
+.glass--circle  { border-radius: 50%; aspect-ratio: 1; }
+.glass--rounded { border-radius: var(--glass-radius); }
+.glass--sharp   { border-radius: 0; }
+
+/* Concentric: child = parent radius − padding (set via custom props) */
+.glass[data-radius="card"]    { --glass-radius: 24px; }
+.glass[data-radius="row"]     { --glass-radius: 12px; }
+.glass[data-radius="control"] { --glass-radius: 9999px; }
+
+/* ──────────────────────────────────────────────────────────────────
+ * Interactive states
+ *────────────────────────────────────────────────────────────────── */
+.glass--interactive { cursor: pointer; user-select: none; }
+.glass--interactive:hover {
+  box-shadow:
+    0 1px 0 0 rgb(255 255 255 / 0.55) inset,
+    0 12px 32px -4px rgb(0 0 0 / 0.22),
+    0 4px 10px -2px rgb(0 0 0 / 0.12);
+}
+.glass--interactive:active {
+  transform: scale(0.97);
+}
+
+button.glass,
+a.glass,
+[role="button"].glass {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 10px 16px;
+  font: 600 17px/22px var(--font-sf-text);
+  cursor: pointer;
+}
+
+button.glass:focus-visible,
+a.glass:focus-visible,
+[role="button"].glass:focus-visible {
+  outline: 2px solid var(--sys-blue);
+  outline-offset: 2px;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+ * Accessibility — Reduce Transparency
+ *────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-transparency: reduce) {
+  .glass,
+  .glass--clear,
+  .glass--refractive {
+    background: var(--background-primary);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-color: var(--separator);
+  }
+  @media (prefers-color-scheme: dark) {
+    .glass,
+    .glass--clear,
+    .glass--refractive {
+      background: var(--background-secondary);
+    }
+  }
+}
+
+/* ── Increase Contrast ── */
+@media (prefers-contrast: more) {
+  .glass {
+    background: rgb(255 255 255 / 0.92);
+    border-width: 2px;
+    border-color: var(--label-primary);
+  }
+  @media (prefers-color-scheme: dark) {
+    .glass { background: rgb(28 28 30 / 0.92); }
+  }
+}
+
+/* ── Reduce Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .glass,
+  .glass--interactive {
+    transition: none;
+  }
+  .glass--interactive:active {
+    transform: none;
+  }
+}
+
+/* ── Fallback for browsers without backdrop-filter ── */
+@supports not ((backdrop-filter: blur(8px)) or (-webkit-backdrop-filter: blur(8px))) {
+  .glass,
+  .glass--clear,
+  .glass--refractive {
+    background: rgb(255 255 255 / 0.92);
+  }
+  @media (prefers-color-scheme: dark) {
+    .glass,
+    .glass--clear,
+    .glass--refractive {
+      background: rgb(28 28 30 / 0.92);
+    }
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+ * Tab bar
+ *────────────────────────────────────────────────────────────────── */
+.tab-bar {
+  position: fixed;
+  bottom: max(env(safe-area-inset-bottom), 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+  padding: 8px;
+  border-radius: var(--glass-radius-capsule);
+  z-index: 100;
+}
+
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 18px;
+  min-height: 44px;
+  border-radius: var(--glass-radius-capsule);
+  color: var(--label-secondary);
+  font: 500 11px/14px var(--font-sf-text);
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 200ms var(--ease-standard), color 200ms var(--ease-standard);
+}
+.tab:hover { color: var(--label-primary); }
+.tab--active {
+  background: var(--sys-blue);
+  color: white;
+}
+
+.tab-bar--minimized {
+  padding: 4px;
+  transform: translateX(-50%) translateY(8px) scale(0.92);
+}
+.tab-bar--minimized .tab {
+  padding: 8px 12px;
+  font-size: 0;
+}
+.tab-bar--minimized .tab svg { width: 22px; height: 22px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-bar { transition: none; }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+ * Top toolbar / nav bar
+ *────────────────────────────────────────────────────────────────── */
+.toolbar {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  padding-top: max(env(safe-area-inset-top), 10px);
+  border-radius: 0 0 var(--glass-radius) var(--glass-radius);
+  z-index: 50;
+}
+.toolbar-title {
+  flex: 1;
+  font: 600 17px/22px var(--font-sf-text);
+  text-align: center;
+  margin: 0;
+  color: var(--label-primary);
+}
+.toolbar-btn {
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: var(--glass-radius-capsule);
+  border: none;
+  background: transparent;
+  color: var(--sys-blue);
+  font: 400 17px/22px var(--font-sf-text);
+  cursor: pointer;
+}
+.toolbar-btn--prominent {
+  background: var(--sys-blue);
+  color: white;
+  padding: 8px 16px;
+  font-weight: 600;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+ * Sidebar
+ *────────────────────────────────────────────────────────────────── */
+.sidebar {
+  position: sticky;
+  top: 0;
+  width: 260px;
+  height: 100vh;
+  padding: 20px 12px;
+  border-radius: 0;
+  border: none;
+  border-right: 1px solid var(--separator);
+}
+.sidebar-title {
+  font: 700 22px/28px var(--font-sf-display);
+  margin: 0 0 16px 8px;
+  color: var(--label-primary);
+}
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  min-height: 36px;
+  border-radius: 8px;
+  font: 400 14px/20px var(--font-sf-text);
+  color: var(--label-primary);
+  text-decoration: none;
+}
+.sidebar-item:hover { background: var(--fill-tertiary); }
+.sidebar-item--active {
+  background: rgb(0 122 255 / 0.15);
+  color: var(--sys-blue);
+  font-weight: 600;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+ * Sheet / modal
+ *────────────────────────────────────────────────────────────────── */
+.sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 0.35);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 240ms var(--ease-standard);
+}
+.sheet-overlay[data-open] { opacity: 1; pointer-events: auto; }
+
+.sheet {
+  width: min(560px, 100%);
+  max-height: 86vh;
+  border-radius: 28px 28px 0 0;
+  padding: 16px 20px max(20px, env(safe-area-inset-bottom));
+  transform: translateY(100%);
+  transition: transform 360ms var(--ease-spring);
+  overflow-y: auto;
+}
+.sheet-overlay[data-open] .sheet { transform: translateY(0); }
+
+.sheet-handle {
+  width: 36px;
+  height: 5px;
+  background: var(--label-quaternary);
+  border-radius: 999px;
+  margin: 0 auto 12px;
+}
+.sheet-title {
+  font: 600 22px/28px var(--font-sf-display);
+  margin: 0 0 12px;
+  color: var(--label-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet-overlay,
+  .sheet { transition: opacity 200ms var(--ease-standard); transform: none; }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+ * Floating action cluster
+ *────────────────────────────────────────────────────────────────── */
+.cluster {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-radius: var(--glass-radius-capsule);
+  z-index: 100;
+  transition: padding 320ms var(--ease-spring);
+}
+.cluster[data-expanded="false"] { padding: 0; }
+.cluster[data-expanded="false"] .cluster-action {
+  height: 0;
+  width: 0;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px) scale(0.6);
+}
+.cluster-action {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--glass-bg-light);
+  border: 1px solid var(--glass-border-light);
+  color: var(--label-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 280ms var(--ease-spring);
+}
+.cluster-toggle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--sys-blue);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 280ms var(--ease-spring);
+}
+.cluster[data-expanded="true"] .cluster-toggle { transform: rotate(45deg); }
+
+@media (prefers-reduced-motion: reduce) {
+  .cluster, .cluster-action, .cluster-toggle { transition: none; }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+ * Type scale (Apple semantic styles)
+ *────────────────────────────────────────────────────────────────── */
+.text-large-title { font: 400 clamp(28px, 5vw, 34px)/41px var(--font-sf-display); letter-spacing: 0.37px; }
+.text-title-1     { font: 400 clamp(24px, 4vw, 28px)/34px var(--font-sf-display); letter-spacing: 0.36px; }
+.text-title-2     { font: 400 clamp(20px, 3vw, 22px)/28px var(--font-sf-display); letter-spacing: 0.35px; }
+.text-title-3     { font: 400 clamp(18px, 2.5vw, 20px)/25px var(--font-sf-display); letter-spacing: 0.38px; }
+.text-headline    { font: 600 17px/22px var(--font-sf-text); letter-spacing: -0.41px; }
+.text-body        { font: 400 17px/22px var(--font-sf-text); letter-spacing: -0.41px; }
+.text-callout     { font: 400 16px/21px var(--font-sf-text); letter-spacing: -0.32px; }
+.text-subheadline { font: 400 15px/20px var(--font-sf-text); letter-spacing: -0.24px; }
+.text-footnote    { font: 400 13px/18px var(--font-sf-text); letter-spacing: -0.08px; }
+.text-caption-1   { font: 400 12px/16px var(--font-sf-text); }
+.text-caption-2   { font: 400 11px/13px var(--font-sf-text); letter-spacing: 0.07px; }
+
+/* ──────────────────────────────────────────────────────────────────
+ * Utility — screen-reader only
+ *────────────────────────────────────────────────────────────────── */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

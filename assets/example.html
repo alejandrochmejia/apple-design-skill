@@ -1,0 +1,173 @@
+<!doctype html>
+<!--
+  Apple Design Skill — live demo
+  ──────────────────────────────────────────────────────────────────
+  Open this file in a browser to see Liquid Glass in action.
+  Best viewed in Chrome/Edge (Chromium) for full refractive variant;
+  Safari/Firefox auto-fall back to plain frosted blur.
+
+  Toggle:
+    – OS dark mode → glass adapts.
+    – Settings → Accessibility → Reduce Transparency → glass becomes opaque.
+    – Settings → Accessibility → Reduce Motion → animations cross-fade.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <title>Liquid Glass — Example</title>
+    <link rel="stylesheet" href="./liquid-glass.css">
+    <style>
+      html, body { margin: 0; min-height: 100vh; }
+      body {
+        font-family: var(--font-sf-text);
+        color: var(--label-primary);
+        background:
+          radial-gradient(at 12% 18%, oklch(78% 0.15 290) 0%, transparent 50%),
+          radial-gradient(at 88% 16%, oklch(82% 0.12 200) 0%, transparent 55%),
+          radial-gradient(at 50% 96%, oklch(74% 0.18 30) 0%, transparent 60%),
+          oklch(96% 0.02 250);
+        background-attachment: fixed;
+      }
+      @media (prefers-color-scheme: dark) {
+        body {
+          background:
+            radial-gradient(at 12% 18%, oklch(38% 0.15 290) 0%, transparent 50%),
+            radial-gradient(at 88% 16%, oklch(35% 0.12 200) 0%, transparent 55%),
+            radial-gradient(at 50% 96%, oklch(38% 0.18 30) 0%, transparent 60%),
+            oklch(12% 0.02 250);
+        }
+      }
+
+      main { max-width: 720px; margin: 0 auto; padding: 80px 16px 160px; }
+      h1 { margin: 0 0 16px; }
+      .stack { display: flex; flex-direction: column; gap: 24px; }
+      .card { padding: 20px; }
+      .row { display: flex; gap: 12px; flex-wrap: wrap; }
+      .row > * { flex: 1 1 auto; }
+    </style>
+  </head>
+
+  <body>
+
+    <!-- The SVG filter — must be present once for refractive variant. -->
+    <object data="./liquid-glass-filter.svg" type="image/svg+xml" aria-hidden="true"
+            style="position:absolute;width:0;height:0"></object>
+
+    <!-- Top toolbar -->
+    <header class="toolbar glass" role="banner">
+      <button class="toolbar-btn" aria-label="Back" type="button">‹</button>
+      <h1 class="toolbar-title">Library</h1>
+      <button class="toolbar-btn toolbar-btn--prominent" type="button">Done</button>
+    </header>
+
+    <main>
+      <div class="stack">
+
+        <!-- Card showing different glass variants -->
+        <article class="card glass">
+          <h2 class="text-title-2">Liquid Glass variants</h2>
+          <p class="text-body" style="color:var(--label-secondary); margin-top:8px">
+            Three flavors. Pick by content, not by aesthetic.
+          </p>
+          <div class="row" style="margin-top:16px">
+            <button class="glass glass--regular  glass--capsule" type="button">.regular</button>
+            <button class="glass glass--clear    glass--capsule" type="button">.clear</button>
+            <button class="glass glass--prominent glass--capsule" type="button">.prominent</button>
+          </div>
+        </article>
+
+        <!-- Refractive hero element (Chromium-only effect) -->
+        <article class="card glass glass--refractive">
+          <h2 class="text-title-2">Refractive variant</h2>
+          <p class="text-body" style="color:var(--label-secondary); margin-top:8px">
+            Real lensing using SVG displacement. Open in Chrome/Edge to see the distortion;
+            Safari/Firefox automatically fall back to a frosted blur.
+          </p>
+        </article>
+
+        <!-- A list — content layer, NO glass on rows. -->
+        <section class="card glass">
+          <h2 class="text-title-3" style="margin-bottom:8px">List rows are content — no glass.</h2>
+          <ul style="list-style:none; padding:0; margin:0;">
+            <li style="display:flex; gap:12px; padding:12px 0; border-bottom:1px solid var(--separator)">
+              <strong class="text-headline">Hierarchy</strong>
+              <span class="text-body" style="color:var(--label-secondary)">Content first; chrome recedes.</span>
+            </li>
+            <li style="display:flex; gap:12px; padding:12px 0; border-bottom:1px solid var(--separator)">
+              <strong class="text-headline">Harmony</strong>
+              <span class="text-body" style="color:var(--label-secondary)">Concentric corners and shared materials.</span>
+            </li>
+            <li style="display:flex; gap:12px; padding:12px 0;">
+              <strong class="text-headline">Consistency</strong>
+              <span class="text-body" style="color:var(--label-secondary)">Standard interactions everywhere.</span>
+            </li>
+          </ul>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- Bottom tab bar -->
+    <nav class="tab-bar glass" aria-label="Primary">
+      <button class="tab tab--active" type="button" aria-current="page">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1z"/>
+        </svg>
+        Home
+      </button>
+      <button class="tab" type="button">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+        </svg>
+        Search
+      </button>
+      <button class="tab" type="button">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/>
+        </svg>
+        Profile
+      </button>
+    </nav>
+
+    <!-- Floating cluster (toggle expanded) -->
+    <div class="cluster glass" data-expanded="false" id="cluster">
+      <button class="cluster-action" type="button" aria-label="Share">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="m16 6-4-4-4 4"/><path d="M12 2v14"/>
+        </svg>
+      </button>
+      <button class="cluster-action" type="button" aria-label="Favorite">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+      </button>
+      <button class="cluster-toggle" type="button" aria-label="Open menu" id="cluster-toggle">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+      </button>
+    </div>
+
+    <script>
+      // Cluster toggle
+      const cluster = document.getElementById('cluster');
+      const toggle = document.getElementById('cluster-toggle');
+      toggle.addEventListener('click', () => {
+        const open = cluster.getAttribute('data-expanded') === 'true';
+        cluster.setAttribute('data-expanded', String(!open));
+        toggle.setAttribute('aria-label', open ? 'Open menu' : 'Close menu');
+      });
+
+      // Tab bar minimization on scroll
+      const bar = document.querySelector('.tab-bar');
+      let lastY = 0;
+      window.addEventListener('scroll', () => {
+        const y = window.scrollY;
+        bar.classList.toggle('tab-bar--minimized', y > lastY && y > 80);
+        lastY = y;
+      }, { passive: true });
+    </script>
+
+  </body>
+</html>
